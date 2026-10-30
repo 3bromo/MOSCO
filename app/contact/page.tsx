@@ -8,40 +8,48 @@ import { db } from "@/lib/db";
 import { localized } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { translate } from "@/lib/i18n/dictionaries";
-import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = "en";
+  const locale = await getLocale();
   return {
     title: translate(locale, "page.contact"),
-    description: "Reach the MOSCOW team by WhatsApp, email, or the message form.",
+    description:
+      locale === "ar"
+        ? "تواصل مع فريق موسكو — واتساب، بريد إلكتروني، أو نموذج المراسلة."
+        : "Reach the MOSCOW team by WhatsApp, email, or the message form.",
     alternates: { canonical: "/contact" },
   };
 }
 
 export default async function ContactPage() {
-  const locale = "en";
+  const locale = await getLocale();
   const t = (k: string) => translate(locale, k);
   const settings = await db().getSettings();
 
   const channels = [
     {
       icon: Mail,
-      label: "Email us",
+      label: t("contact.emailUs"),
       value: settings.contact_email,
       href: `mailto:${settings.contact_email}`,
     },
     {
       icon: Phone,
-      label: "Call us",
+      label: t("contact.callUs"),
       value: settings.contact_phone,
       href: `tel:${settings.contact_phone.replace(/\s/g, "")}`,
     },
     {
+      icon: Clock,
+      label: t("contact.hours"),
+      value: locale === "ar" ? "السبت – الخميس، ١٠ص – ٧م" : "Sat – Thu, 10:00 – 19:00",
+      href: null,
+    },
+    {
       icon: MapPin,
-      label: "Cairo, Egypt",
+      label: t("footer.house"),
       value: localized(settings, "address_line", locale) || "Cairo, Egypt",
       href: null,
     },
@@ -51,7 +59,7 @@ export default async function ContactPage() {
     settings.whatsapp && {
       icon: WhatsAppIcon,
       label: "WhatsApp",
-      href: `https://wa.me/${settings.whatsapp.replace(/\\D/g, "")}`,
+      href: `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`,
     },
     settings.instagram && {
       icon: InstagramIcon,
@@ -63,18 +71,18 @@ export default async function ContactPage() {
       label: "TikTok",
       href: `https://tiktok.com/@${settings.tiktok.replace(/^@/, "")}`,
     },
-  ].filter(Boolean) as {
-    icon: typeof WhatsAppIcon;
-    label: string;
-    href: string;
-  }[];
+  ].filter(Boolean) as { icon: typeof WhatsAppIcon; label: string; href: string }[];
 
   return (
     <>
       <PageHeader
         eyebrow="MOSCOW"
         title={t("page.contact")}
-        subtitle="A real team reads every message. We normally reply the same working day."
+        subtitle={
+          locale === "ar"
+            ? "فريق حقيقي يقرأ كل رسالة. عادةً نردّ في نفس يوم العمل."
+            : "A real team reads every message. We normally reply the same working day."
+        }
         crumbs={[{ label: "MOSCOW", href: "/" }, { label: t("page.contact") }]}
         tone="ice"
       />
@@ -84,7 +92,7 @@ export default async function ContactPage() {
           <Reveal>
             <div className="rounded-lg border border-silver-200 bg-white p-6 sm:p-8">
               <h2 className="font-display text-xl uppercase tracking-tight">
-                Send Message
+                {t("contact.send")}
               </h2>
               <div className="mt-6">
                 <ContactForm />
@@ -102,23 +110,11 @@ export default async function ContactPage() {
                         href={c.href}
                         className="flex items-start gap-4 rounded-lg border border-silver-200 bg-white p-5 transition-colors hover:border-ice-400"
                       >
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded bg-ice-100 text-ice-700">
-                          {c.icon as unknown as React.ReactNode}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-[11px] uppercase tracking-[0.12em] text-ice-500">{c.label}</span>
-                          <span className="mt-1 block break-words text-[14px] text-ice-900">{c.value}</span>
-                        </span>
+                        <ChannelBody icon={c.icon} label={c.label} value={c.value} />
                       </a>
                     ) : (
                       <div className="flex items-start gap-4 rounded-lg border border-silver-200 bg-white p-5">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded bg-ice-100 text-ice-700">
-                          {c.icon as unknown as React.ReactNode}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-[11px] uppercase tracking-[0.12em] text-ice-500">{c.label}</span>
-                          <span className="mt-1 block break-words text-[14px] text-ice-900">{c.value}</span>
-                        </span>
+                        <ChannelBody icon={c.icon} label={c.label} value={c.value} />
                       </div>
                     )}
                   </li>
@@ -127,7 +123,7 @@ export default async function ContactPage() {
 
               {socials.length > 0 && (
                 <div className="rounded-lg bg-ice-50 p-5">
-                  <p className="eyebrow">Follow</p>
+                  <p className="eyebrow">{t("footer.follow")}</p>
                   <div className="mt-3.5 flex flex-wrap gap-2">
                     {socials.map((s) => (
                       <a
@@ -148,6 +144,28 @@ export default async function ContactPage() {
           </Reveal>
         </div>
       </div>
+    </>
+  );
+}
+
+function ChannelBody({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <>
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ice-100 text-ice-700">
+        <Icon className="h-4 w-4" strokeWidth={1.5} />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[11px] uppercase tracking-[0.12em] text-ice-500">{label}</span>
+        <span className="mt-1 block break-words text-[14px] text-ice-900">{value}</span>
+      </span>
     </>
   );
 }

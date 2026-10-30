@@ -1,4 +1,4 @@
-export const LOCALES = ["en"] as const;
+export const LOCALES = ["en", "ar"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
@@ -8,18 +8,18 @@ export function isLocale(v: unknown): v is Locale {
   return typeof v === "string" && (LOCALES as readonly string[]).includes(v);
 }
 
-export function dirOf(locale: Locale): "ltr" {
-  return "ltr";
+export function dirOf(locale: Locale): "ltr" | "rtl" {
+  return locale === "ar" ? "rtl" : "ltr";
 }
 
 export const LOCALE_LABEL: Record<Locale, string> = {
   en: "EN",
-  en: "EN",
+  ar: "ع",
 };
 
 export const LOCALE_NAME: Record<Locale, string> = {
   en: "English",
-  en: "English",
+  ar: "العربية",
 };
 
 /**

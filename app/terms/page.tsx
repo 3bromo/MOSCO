@@ -1,17 +1,29 @@
-export default function TermsPage() {
+import type { Metadata } from "next";
+import LegalPage from "@/components/content/LegalPage";
+import { TERMS, pick } from "@/lib/content/pages";
+import { getLocale } from "@/lib/i18n/server";
+import { translate } from "@/lib/i18n/dictionaries";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title: translate(locale, "page.terms"),
+    description:
+      locale === "ar"
+        ? "شروط وأحكام الشراء من موسكو."
+        : "The terms that apply when you buy from MOSCOW.",
+    alternates: { canonical: "/terms" },
+  };
+}
+
+export default async function TermsPage() {
+  const locale = await getLocale();
   return (
-    <div className="min-h-screen bg-white p-6">
-      <div className="max-w-2xl mx-auto text-center">
-        <h2 className="font-display text-2xl uppercase tracking-tight text-ice-900 mb-6">Terms & Conditions</h2>
-        <div className="prose max-w-none text-ice-700">
-          <p>These terms and conditions govern the use of the MOSCOW website.</p>
-          <ol>
-            <li>By accessing the website, you accept these terms.</li>
-            <li>All content included on the website is the property of MOSCOW.</li>
-            <li>You may not reproduce or distribute the content without prior written consent.</li>
-          </ol>
-        </div>
-      </div>
-    </div>
+    <LegalPage
+      title={translate(locale, "page.terms")}
+      updated={locale === "ar" ? "آخر تحديث: أكتوبر ٢٠٢٦" : "Last updated: October 2026"}
+      blocks={pick(TERMS, locale)}
+      crumbs={[{ label: "MOSCOW", href: "/" }, { label: translate(locale, "page.terms") }]}
+    />
   );
 }

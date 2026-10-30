@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Reveal from "@/components/motion/Reveal";
-import { db } from "@/lib/db";
+import { db, productsInCollection } from "@/lib/db";
 import { localized } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { translate } from "@/lib/i18n/dictionaries";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = "en";
+  const locale = await getLocale();
   return {
     title: translate(locale, "nav.collections"),
     description: translate(locale, "home.collectionsSub"),
@@ -22,16 +22,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CollectionsPage() {
-  const locale = "en";
+  const locale = await getLocale();
   const t = (k: string) => translate(locale, k);
   const repo = db();
 
-  const [collections, products] = await Promise.all([repo.listCollections(), repo.listProducts({})]);
+  const [collections, products] = await Promise.all([
+    repo.listCollections(),
+    repo.listProducts({}),
+  ]);
 
   return (
     <>
       <PageHeader
-        eyebrow="Shop"
+        eyebrow={t("nav.shop")}
         title={t("nav.collections")}
         subtitle={t("home.collectionsSub")}
         crumbs={[{ label: "MOSCOW", href: "/" }, { label: t("nav.collections") }]}
@@ -40,14 +43,8 @@ export default async function CollectionsPage() {
 
       <div className="mw-container grid gap-5 py-12 sm:grid-cols-2 lg:grid-cols-3 sm:py-16">
         {collections.map((c, i) => {
-          const count = products.reduce(
-            (acc, p) => {
-              const collProducts = p.collections || [];
-              return collProducts.includes(c.id) ? acc + 1 : acc;
-            },
-            0
-          );
-          const cover = c.image ?? products.filter((p) => p.collections?.includes(c.id))[0]?.images[0]?.url ?? null;
+          const count = productsInCollection(products, c).length;
+          const cover = c.image ?? productsInCollection(products, c)[0]?.images[0]?.url ?? null;
 
           return (
             <Reveal key={c.id} delay={(i % 3) * 0.06}>
@@ -55,7 +52,7 @@ export default async function CollectionsPage() {
                 href={`/collections/${c.slug}`}
                 className="group relative block overflow-hidden rounded-lg bg-ice-100"
               >
-                <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg bg-ice-100">
+                <div className="relative aspect-4/3 w-full overflow-hidden">
                   {cover ? (
                     <Image
                       src={cover}
@@ -65,14 +62,14 @@ export default async function CollectionsPage() {
                       className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-105"
                     />
                   ) : (
-                    <div
-                      className="absolute inset-0 bg-[radial-gradient(130%_100%_at_25%_10%,#f6fbff_0%,#dceeff_50%,#9cc9ec_100%)]"
-                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(130%_100%_at_25%_10%,#f6fbff_0%,#dceeff_50%,#9cc9ec_100%)]" />
                   )}
                   <div
                     className={cn(
                       "absolute inset-0",
-                      cover ? "bg-gradient-to-t from-ice-950/70 via-ice-950/10 to-transparent" : "bg-gradient-to-t from-ice-900/25 to-transparent",
+                      cover
+                        ? "bg-gradient-to-t from-ice-950/70 via-ice-950/10 to-transparent"
+                        : "bg-gradient-to-t from-ice-900/25 to-transparent",
                     )}
                   />
                 </div>
@@ -102,8 +99,8 @@ export default async function CollectionsPage() {
                       )}
                     >
                       {count
-                        ? `${count} ${count === 1 ? "result" : "results"}`
-                        : "Coming Soon"}
+                        ? `${count} ${count === 1 ? t("common.result") : t("common.results")}`
+                        : t("common.comingSoon")}
                     </p>
                   </div>
                   <span

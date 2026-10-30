@@ -10,7 +10,7 @@ import { localized } from "@/lib/i18n/config";
 import { useI18n } from "@/lib/i18n/context";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
-import { useTrackTimeline } from "./TrackTimeline";
+import TrackTimeline from "./TrackTimeline";
 
 interface TrackedOrder {
   order_number: string;
@@ -152,7 +152,7 @@ export default function TrackForm({ initialOrder }: { initialOrder: string }) {
               <span className="ms-auto text-[13px] text-ice-500">
                 {t("track.placedOn")}{" "}
                 {new Date(result.created_at).toLocaleDateString(
-                  "en-GB",
+                  locale === "ar" ? "ar-EG" : "en-GB",
                   { day: "numeric", month: "long", year: "numeric" },
                 )}
               </span>
