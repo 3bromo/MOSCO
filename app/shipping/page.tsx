@@ -1,34 +1,14 @@
-import type { Metadata } from "next";
-import LegalPage from "@/components/content/LegalPage";
-import { SHIPPING, pick } from "@/lib/content/pages";
-import { getLocale } from "@/lib/i18n/server";
-import { translate } from "@/lib/i18n/dictionaries";
-
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  return {
-    title: translate(locale, "page.shipping"),
-    description:
-      locale === "ar"
-        ? "مواعيد التجهيز ومدة التوصيل وتكلفة الشحن حسب المحافظة وتتبّع الطلب."
-        : "Dispatch times, delivery windows, shipping cost by governorate and order tracking.",
-    alternates: { canonical: "/shipping" },
-  };
-}
-
-export default async function ShippingPage() {
-  const locale = await getLocale();
+export default function ShippingPage() {
   return (
-    <LegalPage
-      eyebrow="MOSCOW"
-      title={translate(locale, "page.shipping")}
-      subtitle={
-        locale === "ar"
-          ? "كل ما تحتاج معرفته قبل أن يصل طردك."
-          : "Everything that happens between checkout and your door."
-      }
-      blocks={pick(SHIPPING, locale)}
-      crumbs={[{ label: "MOSCOW", href: "/" }, { label: translate(locale, "page.shipping") }]}
-    />
+    <div className="min-h-screen bg-white p-6">
+      <div className="max-w-2xl mx-auto text-center">
+        <h2 className="font-display text-2xl uppercase tracking-tight text-ice-900 mb-6">Shipping Information</h2>
+        <div className="prose max-w-none text-ice-700">
+          <p>Shipping inside Egypt starts at {settings.shipping_flat} EGP and is free over {settings.free_shipping_threshold} EGP.</p>
+          <p>Delivery usually takes 2-5 working days.</p>
+          <p>Exchanges and returns are accepted within 14 days of delivery while the piece is in its original condition.</p>
+        </div>
+      </div>
+    </div>
   );
 }

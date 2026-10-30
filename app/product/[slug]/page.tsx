@@ -21,7 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await db().getProductBySlug(slug);
-  const locale = await getLocale();
+  const locale = "en";
   if (!product) return { title: translate(locale, "notFound.title") };
 
   const name = localized(product, "name", locale);
@@ -44,7 +44,7 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const locale = await getLocale();
+  const locale = "en";
   const t = (k: string) => translate(locale, k);
   const repo = db();
 
@@ -61,10 +61,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const inStock = totalStock(product) > 0;
 
-  const shippingNote =
-    locale === "ar"
-      ? `الشحن داخل مصر يبدأ من ${settings.shipping_flat} ج.م، ومجاني للطلبات فوق ${settings.free_shipping_threshold} ج.م. التوصيل عادة من ٢ إلى ٥ أيام عمل. الاستبدال أو الإرجاع متاح خلال ١٤ يوماً من الاستلام طالما القطعة بحالتها الأصلية.`
-      : `Shipping inside Egypt starts at ${settings.shipping_flat} EGP and is free over ${settings.free_shipping_threshold} EGP. Delivery usually takes 2–5 working days. Exchanges and returns are accepted within 14 days of delivery while the piece is in its original condition.`;
+  const shippingNote = `Shipping inside Egypt starts at ${settings.shipping_flat} EGP and is free over ${settings.free_shipping_threshold} EGP. Delivery usually takes 2–5 working days. Exchanges and returns are accepted within 14 days of delivery while the piece is in its original condition.`;
 
   // Structured data so the product surfaces properly in search.
   const jsonLd = {
@@ -87,7 +84,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   };
 
   return (
-    <>
+    <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -104,7 +101,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <li aria-hidden="true">/</li>
             <li>
               <a href="/shop" className="hover:text-ice-900">
-                {t("shop.title")}
+                Shop
               </a>
             </li>
             <li aria-hidden="true">/</li>
@@ -114,7 +111,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               </a>
             </li>
             <li aria-hidden="true">/</li>
-            <li className="text-ice-800">{localized(product, "name", locale)}</li>
+            <li className="text-ice-800">
+              {product.name}
+            </li>
           </ol>
         </nav>
       </div>
@@ -123,7 +122,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="lg:sticky lg:top-[calc(var(--header-h)+20px)] lg:self-start">
           <ProductGallery
             images={product.images}
-            productName={localized(product, "name", locale)}
+            productName={product.name}
           />
         </div>
 
@@ -136,10 +135,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
       {related.length > 0 && (
         <section className="mw-container border-t border-silver-200 py-16 sm:py-20">
-          <SectionHeader title={t("product.related")} href="/shop" hrefLabel={t("common.viewAll")} />
+          <SectionHeader title="You May Also Like" hrefLabel="View All" />
           <ProductGrid products={related} columns={4} />
         </section>
-      )}
-    </>
+      </div>
+    </div>
   );
 }

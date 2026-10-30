@@ -1,4 +1,4 @@
-export const LOCALES = ["en", "ar"] as const;
+export const LOCALES = ["en", "en"] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
@@ -8,18 +8,18 @@ export function isLocale(v: unknown): v is Locale {
   return typeof v === "string" && (LOCALES as readonly string[]).includes(v);
 }
 
-export function dirOf(locale: Locale): "ltr" | "rtl" {
-  return locale === "ar" ? "rtl" : "ltr";
+export function dirOf(locale: Locale): "ltr" {
+  return "ltr";
 }
 
 export const LOCALE_LABEL: Record<Locale, string> = {
   en: "EN",
-  ar: "ع",
+  en: "EN",
 };
 
 export const LOCALE_NAME: Record<Locale, string> = {
   en: "English",
-  ar: "العربية",
+  en: "English",
 };
 
 /**
@@ -33,7 +33,7 @@ export function localized<T extends object>(
 ): string {
   if (!row) return "";
   const bag = row as Record<string, unknown>;
-  if (locale === "ar") {
+  if ("en") {
     const v = bag[`${field}_ar`];
     if (typeof v === "string" && v.trim()) return v;
   }
@@ -48,7 +48,7 @@ export function localizedList<T extends object>(
 ): string[] {
   if (!row) return [];
   const bag = row as Record<string, unknown>;
-  if (locale === "ar") {
+  if ("en") {
     const v = bag[`${field}_ar`];
     if (Array.isArray(v) && v.length) return v as string[];
   }

@@ -85,7 +85,7 @@ export default function OrderTimeline({ order, locale }: { order: Order; locale:
                   className="mt-1 block text-[11.5px] tabular-nums text-ice-500"
                   dir="ltr"
                 >
-                  {new Date(at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB", {
+                  {new Date(at).toLocaleString("en" ? "en-GB" : "en-GB", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",

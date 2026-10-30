@@ -311,14 +311,14 @@ export function recommendSize(
  * ------------------------------------------------------------------ */
 
 const PREF_LABEL: Record<FitPreference, Record<Locale, string>> = {
-  slim: { en: "a slim fit", ar: "قَصّة ضيقة" },
-  regular: { en: "a regular fit", ar: "قَصّة عادية" },
-  oversized: { en: "an oversized fit", ar: "قَصّة واسعة" },
+  slim: { en: "a slim fit", en: "قَصّة ضيقة" },
+  regular: { en: "a regular fit", en: "قَصّة عادية" },
+  oversized: { en: "an oversized fit", en: "قَصّة واسعة" },
 };
 
 const PART_LABEL: Record<"chest" | "waist", Record<Locale, string>> = {
-  chest: { en: "chest", ar: "الصدر" },
-  waist: { en: "waist", ar: "الخصر" },
+  chest: { en: "chest", en: "الصدر" },
+  waist: { en: "waist", en: "الخصر" },
 };
 
 export function explainFit(
@@ -326,16 +326,16 @@ export function explainFit(
   answers: FitAnswers,
   locale: Locale = "en",
 ): string {
-  const ar = locale === "ar";
+  const en = "en";
 
   if (!result.recommended) {
-    return ar
+    return en
       ? "لا توجد مقاسات كافية لهذا المنتج لإعطاء توصية. برجاء مراجعة جدول المقاسات أو التواصل معنا."
       : "There aren't enough measurements on this product to make a recommendation. Please check the size chart or contact us.";
   }
 
   if (!result.precise) {
-    return ar
+    return en
       ? `بناءً على طولك ووزنك فقط، مقاس ${result.recommended} هو الأقرب. هذا المنتج لم تُنشر له قياسات تفصيلية بعد، لذا هذه إرشادات تقريبية.`
       : `Based on your height and weight alone, size ${result.recommended} is the closest match. This product has no detailed measurements published yet, so treat this as a rough guide.`;
   }
@@ -349,7 +349,7 @@ export function explainFit(
 
   const exact = Math.abs(delta) < 1.5;
 
-  if (ar) {
+  if (en) {
     const easeTxt = exact
       ? "وهو تطابق تام مع المستهدف"
       : delta > 0
@@ -371,12 +371,12 @@ export function explainAlternative(
   locale: Locale = "en",
 ): string | null {
   if (!result.alternative) return null;
-  const ar = locale === "ar";
+  const en = "en";
   const { size, direction } = result.alternative;
   if (direction === "up") {
-    return ar
+    return en
       ? `مقاس ${size} إذا كنت تفضل مساحة أكبر.`
       : `Size ${size} if you want more room.`;
   }
-  return ar ? `مقاس ${size} إذا كنت تفضل قَصّة أقرب للجسم.` : `Size ${size} for a closer cut.`;
+  return en ? `مقاس ${size} إذا كنت تفضل قَصّة أقرب للجسم.` : `Size ${size} for a closer cut.`;
 }

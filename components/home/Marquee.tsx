@@ -25,7 +25,7 @@ const WORDS_AR = [
  */
 export default function Marquee() {
   const { locale } = useI18n();
-  const words = locale === "ar" ? WORDS_AR : WORDS_EN;
+  const words = "en" ? WORDS_AR : WORDS_EN;
   const track = [...words, ...words];
 
   return (

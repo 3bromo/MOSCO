@@ -384,7 +384,7 @@ export const en = {
 
 export type DictKey = keyof typeof en;
 
-export const ar: Record<DictKey, string> = {
+export const en: Record<DictKey, string> = {
   "nav.shop": "المتجر",
   "nav.newArrivals": "وصل حديثاً",
   "nav.bestSellers": "الأكثر مبيعاً",
@@ -753,7 +753,7 @@ export const ar: Record<DictKey, string> = {
 
 export const dictionaries: Record<Locale, Record<string, string>> = {
   en: en as unknown as Record<string, string>,
-  ar,
+  en,
 };
 
 /** Translate with {var} interpolation. Falls back to EN, then to the key. */
