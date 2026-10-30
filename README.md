@@ -166,11 +166,72 @@ is mandatory in production.
 
 ---
 
+## Deploying to Vercel
+
+### Build & output settings
+
+Zero-config. Vercel detects Next.js and uses the right defaults — do not override
+them. There is intentionally **no `vercel.json`**; `next.config.ts` sets no
+`output` mode, so the standard serverless build is used.
+
+| Setting           | Value                          |
+| ----------------- | ------------------------------ |
+| Framework Preset  | Next.js                        |
+| Build Command     | `next build` (default)         |
+| Install Command   | `npm install` (default)        |
+| Output Directory  | `.next` (default)              |
+| Root Directory    | `./`                           |
+| Node.js Version   | 20.x or later                  |
+
+### Supabase is required in production
+
+> [!IMPORTANT]
+> On Vercel the filesystem is **read-only**, so the local JSON database cannot
+> save anything. Without Supabase credentials the storefront still renders from a
+> seeded in-memory copy, but every order, admin edit and image upload is lost
+> when the instance recycles. The admin dashboard shows a prominent warning
+> whenever it is in this state, so a half-configured deploy can never be mistaken
+> for a working one.
+
+To make the deployment real:
+
+1. Create a Supabase project.
+2. Open the SQL editor and run [`supabase/schema.sql`](supabase/schema.sql) once.
+   It creates the 8 tables, the stock RPC, RLS policies and the `mosco-media`
+   storage bucket, and seeds the settings row plus the 8 collections.
+3. Add the environment variables below in Vercel (Project → Settings →
+   Environment Variables), for **Production, Preview and Development**.
+4. Redeploy. The adapter switches automatically — no code changes.
+
+### Environment variables
+
+| Variable                        | Required            | Notes                                                        |
+| ------------------------------- | ------------------- | ------------------------------------------------------------ |
+| `AUTH_SECRET`                   | **Yes**             | Session signing key. `openssl rand -base64 48`                |
+| `NEXT_PUBLIC_SITE_URL`          | **Yes**             | Canonical URL, e.g. `https://moscow.store`. Used by metadata, OG tags, sitemap, robots |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes for persistence | `https://<ref>.supabase.co`                                   |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes for persistence | **Server-only secret.** Never add a `NEXT_PUBLIC_` prefix     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Optional            | Not needed by the server; safe to expose                      |
+| `SUPABASE_STORAGE_BUCKET`       | Optional            | Defaults to `mosco-media`                                     |
+| `ADMIN_EMAIL`                   | Optional            | First-boot admin. Defaults to `admin@moscow.store`            |
+| `ADMIN_PASSWORD`                | Optional            | First-boot admin password. **Change it**                      |
+
+Storage: uploads go to the `mosco-media` bucket when Supabase is configured, and
+to `public/uploads` only in local development. The bucket is public-read; all
+writes are proxied through `/api/upload`, which requires an admin session for
+product imagery.
+
+---
+
 ## Known gaps
 
 - Supabase is wired and migrated but has not been run against a live project from
   this workspace — no credentials were available. The local adapter is fully
-  exercised.
+  exercised, and the Supabase adapter is written against the schema in
+  `supabase/schema.sql`, but the first real deploy should be smoke-tested.
+- The local JSON database cannot persist on serverless hosts (read-only
+  filesystem). This is detected at runtime and surfaced in the admin dashboard;
+  see [Deploying to Vercel](#deploying-to-vercel).
 - `public/brand/` is empty. Drop in an OG share image and favicons when the brand
   assets are ready.
 - Transactional email (order confirmations) is not wired to a provider; orders are

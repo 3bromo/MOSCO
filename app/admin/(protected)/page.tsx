@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import OrderStatusBadge from "@/components/account/OrderStatusBadge";
-import { db, dbMode, totalStock } from "@/lib/db";
+import { db, dbMode, isEphemeralStorage, totalStock } from "@/lib/db";
 import { translate } from "@/lib/i18n/dictionaries";
 import { formatMoney } from "@/lib/money";
 
@@ -73,6 +73,8 @@ export default async function AdminOverview() {
     },
   ];
 
+  const ephemeral = isEphemeralStorage();
+
   return (
     <>
       <AdminHeader
@@ -80,9 +82,30 @@ export default async function AdminOverview() {
         subtitle={
           dbMode() === "supabase"
             ? "Connected to Supabase. Every change below writes to your project."
-            : "Running on the local JSON database at data/mosco.json. Add Supabase keys to .env.local to switch — no code changes needed."
+            : ephemeral
+              ? "Running in memory only — this server's filesystem is read-only."
+              : "Running on the local JSON database at data/mosco.json. Add Supabase keys to .env.local to switch — no code changes needed."
         }
       />
+
+      {ephemeral && (
+        <div
+          role="alert"
+          className="mb-6 flex gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-900"
+        >
+          <AlertTriangle className="mt-0.5 h-4.5 w-4.5 shrink-0" strokeWidth={1.75} />
+          <div className="text-[13px] leading-relaxed">
+            <p className="font-medium">Changes on this server will not be saved.</p>
+            <p className="mt-1 text-amber-800">
+              The filesystem is read-only (normal on Vercel and other serverless hosts), so the
+              local JSON database is held in memory and is lost whenever the instance recycles.
+              Add <code className="font-mono text-[12px]">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+              <code className="font-mono text-[12px]">SUPABASE_SERVICE_ROLE_KEY</code> environment
+              variables, then redeploy, to store products, orders and uploads for real.
+            </p>
+          </div>
+        </div>
+      )}
 
       <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {stats.map((s) => {

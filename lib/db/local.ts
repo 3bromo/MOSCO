@@ -54,16 +54,56 @@ async function readFromDisk(): Promise<DatabaseShape | null> {
 
 let tmpCounter = 0;
 
+/**
+ * Serverless platforms (Vercel, Lambda) mount the deployment read-only, so the
+ * file store physically cannot persist there. Rather than 500 on every render
+ * we fall back to a per-instance in-memory database and surface the degraded
+ * state loudly — `data/mosco.json` is gitignored, so a Supabase-less deploy
+ * would otherwise crash on first paint while seeding.
+ */
+const READ_ONLY_FS = new Set(["EROFS", "EACCES", "EPERM"]);
+let persistence: "file" | "memory" = "file";
+let warned = false;
+
+function degradeToMemory(err: unknown) {
+  persistence = "memory";
+  if (warned) return;
+  warned = true;
+  console.warn(
+    "[mosco] Filesystem is read-only - the local JSON database is running " +
+      "IN MEMORY ONLY. The storefront will render, but every write (orders, " +
+      "admin edits, uploads) is lost when this instance recycles.\n" +
+      "[mosco] Set NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY to " +
+      "enable real persistence. Cause: " +
+      (err instanceof Error ? err.message : String(err)),
+  );
+}
+
+/** True when this process cannot persist to disk (serverless, read-only FS). */
+export function localPersistenceMode(): "file" | "memory" {
+  return persistence;
+}
+
 async function writeToDisk(db: DatabaseShape) {
-  await ensureDir();
-  // pid + monotonic counter + randomness: two writes inside the same
-  // millisecond can never pick the same temp path.
-  tmpCounter = (tmpCounter + 1) % 1_000_000;
-  const tmp = `${DB_FILE}.${process.pid}.${tmpCounter}.${Math.random()
-    .toString(36)
-    .slice(2, 8)}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
-  await fs.rename(tmp, DB_FILE);
+  if (persistence === "memory") return; // already known read-only; keep serving
+  try {
+    await ensureDir();
+    // pid + monotonic counter + randomness: two writes inside the same
+    // millisecond can never pick the same temp path.
+    tmpCounter = (tmpCounter + 1) % 1_000_000;
+    const tmp = `${DB_FILE}.${process.pid}.${tmpCounter}.${Math.random()
+      .toString(36)
+      .slice(2, 8)}.tmp`;
+    await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
+    await fs.rename(tmp, DB_FILE);
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException)?.code;
+    if (code && READ_ONLY_FS.has(code)) {
+      degradeToMemory(err);
+      return;
+    }
+    throw err;
+  }
 }
 
 /**
