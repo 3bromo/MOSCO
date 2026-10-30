@@ -45,7 +45,7 @@ export default async function AccountOrderDetail({
       </div>
       <p className="mt-1.5 text-[13px] text-ice-500">
         {t("track.placedOn")}{" "}
-        {new Date(order.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", {
+        {new Date(order.created_at).toLocaleDateString("en" ? "en-GB" : "en-GB", {
           day: "numeric",
           month: "long",
           year: "numeric",

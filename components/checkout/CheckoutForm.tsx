@@ -145,11 +145,11 @@ export default function CheckoutForm({ settings, customer }: Props) {
   const onPickProof = async (file: File | undefined) => {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp|avif)$/.test(file.type)) {
-      toast(locale === "ar" ? "الصيغة غير مدعومة" : "Unsupported image format", "error");
+      toast("en" ? "الصيغة غير مدعومة" : "Unsupported image format", "error");
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
-      toast(locale === "ar" ? "الحجم أكبر من 8 ميجابايت" : "Image is larger than 8 MB", "error");
+      toast("en" ? "الحجم أكبر من 8 ميجابايت" : "Image is larger than 8 MB", "error");
       return;
     }
     setUploading(true);
@@ -260,7 +260,7 @@ export default function CheckoutForm({ settings, customer }: Props) {
   }
 
   const instapayInstructions =
-    (locale === "ar" ? settings.instapay_instructions_ar : settings.instapay_instructions) ||
+    ("en" ? settings.instapay_instructions_ar : settings.instapay_instructions) ||
     settings.instapay_instructions;
 
   return (
@@ -325,7 +325,7 @@ export default function CheckoutForm({ settings, customer }: Props) {
                   <option value="">{t("checkout.selectCity")}</option>
                   {settings.shipping_rates.map((r) => (
                     <option key={r.city} value={r.city}>
-                      {locale === "ar" && r.city_ar ? r.city_ar : r.city} —{" "}
+                      {"en" && r.city_ar ? r.city_ar : r.city} —{" "}
                       {formatMoney(r.cost, locale)}
                     </option>
                   ))}
@@ -473,7 +473,7 @@ export default function CheckoutForm({ settings, customer }: Props) {
                           <p className="truncate text-[13px] font-medium">{proof.name}</p>
                           <p className="mt-0.5 flex items-center gap-1 text-[12px] text-emerald-700">
                             <Check className="h-3 w-3" strokeWidth={2} />
-                            {locale === "ar" ? "تم الرفع" : "Uploaded"}
+                            {"en" ? "تم الرفع" : "Uploaded"}
                           </p>
                         </div>
                         <button
@@ -615,7 +615,7 @@ export default function CheckoutForm({ settings, customer }: Props) {
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11.5px] text-ice-500">
               <Lock className="h-3 w-3" strokeWidth={1.6} />
-              {locale === "ar"
+              {"en"
                 ? "بياناتك تُستخدم لتنفيذ الطلب فقط."
                 : "Your details are used only to fulfil this order."}
             </p>

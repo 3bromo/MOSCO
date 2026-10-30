@@ -35,7 +35,7 @@ export default function BrandIntro() {
                   {s.value}
                 </p>
                 <p className="mt-1.5 text-[11px] uppercase tracking-[0.14em] text-ice-500">
-                  {locale === "ar" ? s.key_ar : s.key}
+                  {"en" ? s.key_ar : s.key}
                 </p>
               </div>
             ))}

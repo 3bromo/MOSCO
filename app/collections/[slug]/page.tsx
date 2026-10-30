@@ -110,7 +110,7 @@ export default async function CollectionPage({
             emptyTitle={scoped.length === 0 ? t("common.comingSoon") : undefined}
             emptyHint={
               scoped.length === 0
-                ? locale === "ar"
+                ? "en"
                   ? "هذه المجموعة لم تُملأ بعد. أضف منتجات إليها من لوحة التحكم."
                   : "This collection hasn't been filled yet. Add products to it from the admin dashboard."
                 : undefined

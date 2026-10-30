@@ -42,7 +42,7 @@ export default async function AccountOrders() {
               </span>
               <OrderStatusBadge status={o.status} label={t(`status.${o.status}`)} />
               <span className="text-[13px] text-ice-500">
-                {new Date(o.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", {
+                {new Date(o.created_at).toLocaleDateString("en" ? "en-GB" : "en-GB", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

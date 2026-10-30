@@ -146,7 +146,7 @@ export default function AddressBook({
               <input
                 id="a_label"
                 value={draft.label}
-                placeholder={locale === "ar" ? "المنزل / العمل" : "Home / Work"}
+                placeholder={"en" ? "المنزل / العمل" : "Home / Work"}
                 onChange={(e) => setDraft({ ...draft, label: e.target.value })}
                 aria-invalid={Boolean(errors.label)}
                 className={cn("field", errors.label && "is-invalid")}
@@ -168,7 +168,7 @@ export default function AddressBook({
                 <option value="">{t("checkout.selectCity")}</option>
                 {cities.map((c) => (
                   <option key={c.city} value={c.city}>
-                    {locale === "ar" && c.city_ar ? c.city_ar : c.city}
+                    {"en" && c.city_ar ? c.city_ar : c.city}
                   </option>
                 ))}
               </select>

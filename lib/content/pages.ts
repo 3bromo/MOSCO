@@ -49,7 +49,7 @@ export const FAQ: Bilingual<{ q: string; a: string }[]> = {
       a: "Not yet. International shipping is planned. Join the newsletter and you will hear about it first.",
     },
   ],
-  ar: [
+  en: [
     {
       q: "كيف أعرف المقاس المناسب لي؟",
       a: "كل منتج في موسكو له جدول مقاسات خاص به — لا يوجد جدول موحّد، لأن كل قصّة مختلفة في التدريج. يمكنك أيضاً استخدام MOSCOW Fit AI: ثلاثة أسئلة قصيرة عن طولك ووزنك، شكل جسمك، والقَصّة التي تفضّلها، ثم نقارن إجاباتك بمقاسات هذه القطعة تحديداً. يقترح النظام مقاساً ويخبرك بمدى ثقته فيه، لكنه لا يضيف أي شيء إلى السلة — القرار يبقى لك.",
@@ -128,7 +128,7 @@ export const SHIPPING: Bilingual<Block[]> = {
       ],
     },
   ],
-  ar: [
+  en: [
     {
       heading: "تجهيز الطلب",
       body: [
@@ -215,7 +215,7 @@ export const RETURNS: Bilingual<Block[]> = {
       ],
     },
   ],
-  ar: [
+  en: [
     {
       heading: "١٤ يوماً للقرار",
       body: [
@@ -300,7 +300,7 @@ export const PRIVACY: Bilingual<Block[]> = {
       ],
     },
   ],
-  ar: [
+  en: [
     {
       heading: "البيانات التي نجمعها",
       body: [
@@ -391,7 +391,7 @@ export const TERMS: Bilingual<Block[]> = {
       body: ["These terms are governed by the laws of the Arab Republic of Egypt."],
     },
   ],
-  ar: [
+  en: [
     {
       heading: "الاتفاق",
       body: [

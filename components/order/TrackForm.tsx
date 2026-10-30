@@ -152,7 +152,7 @@ export default function TrackForm({ initialOrder }: { initialOrder: string }) {
               <span className="ms-auto text-[13px] text-ice-500">
                 {t("track.placedOn")}{" "}
                 {new Date(result.created_at).toLocaleDateString(
-                  locale === "ar" ? "ar-EG" : "en-GB",
+                  "en" ? "en-GB" : "en-GB",
                   { day: "numeric", month: "long", year: "numeric" },
                 )}
               </span>

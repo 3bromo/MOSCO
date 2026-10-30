@@ -41,7 +41,7 @@ export default async function AccountOverview() {
         </dl>
         <p className="mt-4 text-[12.5px] text-ice-500">
           {t("account.memberSince")}{" "}
-          {new Date(customer.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", {
+          {new Date(customer.created_at).toLocaleDateString("en" ? "en-GB" : "en-GB", {
             year: "numeric",
             month: "long",
           })}
@@ -84,7 +84,7 @@ export default async function AccountOverview() {
                   <OrderStatusBadge status={o.status} label={t(`status.${o.status}`)} />
                   <span className="text-[13px] text-ice-500">
                     {new Date(o.created_at).toLocaleDateString(
-                      locale === "ar" ? "ar-EG" : "en-GB",
+                      "en" ? "en-GB" : "en-GB",
                       { day: "numeric", month: "short", year: "numeric" },
                     )}
                   </span>
