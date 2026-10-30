@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountOverview() {
   const customer = await requireCustomer();
-  const locale = await getLocale();
+  const locale = "en";
   const t = (k: string, v?: Record<string, string | number>) => translate(locale, k, v);
 
   const orders = await db().listOrders({ customerId: customer.id });
@@ -40,11 +40,7 @@ export default async function AccountOverview() {
           ))}
         </dl>
         <p className="mt-4 text-[12.5px] text-ice-500">
-          {t("account.memberSince")}{" "}
-          {new Date(customer.created_at).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-GB", {
-            year: "numeric",
-            month: "long",
-          })}
+          {t("account.memberSince")} {customer.created_at.split("T")[0]}
         </p>
       </section>
 
@@ -57,7 +53,7 @@ export default async function AccountOverview() {
               className="inline-flex items-center gap-1.5 text-[13px] text-ice-700 underline underline-offset-4 hover:text-ice-900"
             >
               {t("common.viewAll")}
-              <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" strokeWidth={1.75} />
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
             </Link>
           )}
         </div>
@@ -83,10 +79,7 @@ export default async function AccountOverview() {
                   </span>
                   <OrderStatusBadge status={o.status} label={t(`status.${o.status}`)} />
                   <span className="text-[13px] text-ice-500">
-                    {new Date(o.created_at).toLocaleDateString(
-                      locale === "ar" ? "ar-EG" : "en-GB",
-                      { day: "numeric", month: "short", year: "numeric" },
-                    )}
+                    {o.created_at.split("T")[0]}
                   </span>
                   <span className="ms-auto font-medium tabular-nums">
                     {formatMoney(o.total, locale)}

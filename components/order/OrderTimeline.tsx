@@ -1,103 +1,56 @@
-import { Check, CircleDashed, XCircle } from "lucide-react";
-import type { Locale } from "@/lib/i18n/config";
-import { translate } from "@/lib/i18n/dictionaries";
-import type { Order, OrderStatus } from "@/lib/db/types";
+"use client";
+
+import { useEffect } from "react";
+import { ArrowRight, Package, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const FLOW: OrderStatus[] = ["pending", "confirmed", "processing", "shipped", "delivered"];
+export default function OrderTimeline({ order, orderNumber }: { order: any; orderNumber: string }) {
+  useEffect(() => setTimeout(() => {}, 0), [order]);
 
-export default function OrderTimeline({ order, locale }: { order: Order; locale: Locale }) {
-  const t = (k: string) => translate(locale, k);
-  const cancelled = order.status === "cancelled";
-  const currentIndex = cancelled ? -1 : FLOW.indexOf(order.status);
+  const statuses = [
+    { key: "pending", title: "Pending", desc: "We've received your order and will confirm it shortly." },
+    { key: "confirmed", title: "Confirmed", desc: "Your order is confirmed and queued for packing." },
+    { key: "processing", title: "Processing", desc: "Your pieces are being prepared and packed." },
+    { key: "shipped", title: "Shipped", desc: "Your order is with the courier." },
+    { key: "delivered", title: "Delivered", desc: "Delivered. Thank you for choosing MOSCOW." },
+    { key: "cancelled", title: "Cancelled", desc: "This order was cancelled." },
+  ];
 
-  const stamps = new Map<OrderStatus, string>();
-  for (const entry of order.timeline) stamps.set(entry.status, entry.at);
-
-  const steps: { status: OrderStatus; done: boolean; active: boolean }[] = cancelled
-    ? [{ status: "cancelled", done: true, active: true }]
-    : FLOW.map((s, i) => ({
-        status: s,
-        done: i < currentIndex,
-        active: i === currentIndex,
-      }));
+  const orderStatus = statuses.find((s) => s.key === order.status) || statuses[0];
 
   return (
-    <ol className="mt-4 space-y-0">
-      {steps.map((step, i) => {
-        const at = stamps.get(step.status);
-        const last = i === steps.length - 1;
-        const reached = step.done || step.active;
+    <div className="space-y-4">
+      {order.status !== "cancelled" && (
+        <ol className="flex items-start space-y-2 space-x-6">
+          {statuses.map((status, i) => (
+            <li key={status.key} className="flex items-start gap-3">
+              <div
+                className={cn(
+                  "grid h-7 w-7 rounded-full bg-ice-100 place-items-center text-ice-500 shrink-0",
+                  i < order.index ? "bg-ice-900 text-white" : "text-ice-200",
+                )}
+              >
+                {i < order.index ? (
+                  <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+                ) : null}
+              </div>
 
-        return (
-          <li key={step.status} className="flex gap-4">
-            <div className="flex flex-col items-center">
-              <span
-                className={cn(
-                  "grid h-8 w-8 shrink-0 place-items-center rounded-full ring-1 transition-colors",
-                  step.status === "cancelled"
-                    ? "bg-red-50 text-red-600 ring-red-200"
-                    : step.active
-                      ? "bg-ice-900 text-white ring-ice-900"
-                      : step.done
-                        ? "bg-ice-100 text-ice-800 ring-ice-200"
-                        : "bg-white text-ice-300 ring-silver-200",
-                )}
-              >
-                {step.status === "cancelled" ? (
-                  <XCircle className="h-4 w-4" strokeWidth={1.6} />
-                ) : reached ? (
-                  <Check className="h-3.5 w-3.5" strokeWidth={2.4} />
-                ) : (
-                  <CircleDashed className="h-3.5 w-3.5" strokeWidth={1.6} />
-                )}
-              </span>
-              {!last && (
-                <span
-                  className={cn(
-                    "my-1 w-px flex-1 transition-colors",
-                    step.done ? "bg-ice-400" : "bg-silver-200",
-                  )}
-                />
-              )}
-            </div>
+              <div className="flex-1 min-w-0">
+                <p className="mt-1 block text-[11.5px] tabular-nums text-ice-500">
+                  {status.title}
+                </p>
+                <p className="mt-1 text-ice-400">{status.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
 
-            <div className={cn("min-w-0 pb-7", last && "pb-0")}>
-              <p
-                className={cn(
-                  "text-[14px] font-medium leading-tight",
-                  reached ? "text-ice-900" : "text-ice-400",
-                )}
-              >
-                {t(`status.${step.status}`)}
-              </p>
-              <p
-                className={cn(
-                  "mt-1 text-[12.5px] leading-snug",
-                  reached ? "text-ice-600" : "text-ice-400",
-                )}
-              >
-                {t(`status.${step.status}Desc`)}
-              </p>
-              {at && (
-                <time
-                  dateTime={at}
-                  className="mt-1 block text-[11.5px] tabular-nums text-ice-500"
-                  dir="ltr"
-                >
-                  {new Date(at).toLocaleString(locale === "ar" ? "ar-EG" : "en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </time>
-              )}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+      {order.status === "cancelled" && (
+        <div className="p-6 bg-red-50 rounded-lg">
+          <p className="text-red-600">This order has been cancelled.</p>
+        </div>
+      )}
+    </div>
   );
 }

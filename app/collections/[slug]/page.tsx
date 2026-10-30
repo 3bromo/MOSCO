@@ -10,6 +10,7 @@ import type { ProductQuery } from "@/lib/db/types";
 import { localized } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { translate } from "@/lib/i18n/dictionaries";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const locale = await getLocale();
+  const locale = "en";
   const c = await db().getCollectionBySlug(slug);
   if (!c) return { title: translate(locale, "notFound.title") };
   return {
@@ -45,7 +46,7 @@ export default async function CollectionPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
-  const locale = await getLocale();
+  const locale = "en";
   const t = (k: string) => translate(locale, k);
   const repo = db();
 
@@ -66,7 +67,7 @@ export default async function CollectionPage({
     minPrice: sp.min ? Number(sp.min) : undefined,
     maxPrice: sp.max ? Number(sp.max) : undefined,
     inStockOnly: sp.instock === "1",
-    sort: (["newest", "price-asc", "price-desc", "popular"] as const).includes(sortParam as never)
+    sort: ["newest", "price-asc", "price-desc", "popular"].includes(sortParam as never)
       ? (sortParam as ProductQuery["sort"])
       : "newest",
   };
@@ -77,12 +78,12 @@ export default async function CollectionPage({
   return (
     <>
       <PageHeader
-        eyebrow={collection.kind === "category" ? t("shop.category") : t("nav.collections")}
+        eyebrow="Collections"
         title={localized(collection, "name", locale)}
         subtitle={localized(collection, "description", locale)}
         crumbs={[
           { label: "MOSCOW", href: "/" },
-          { label: t("nav.collections"), href: "/collections" },
+          { label: "Collections", href: "/collections" },
           { label: localized(collection, "name", locale) },
         ]}
         tone="ice"
@@ -94,8 +95,8 @@ export default async function CollectionPage({
         <div className="min-w-0 flex-1">
           <div className="mb-8 flex items-center justify-between gap-4">
             <p className="text-[13px] text-ice-600">
-              <span className="font-medium tabular-nums text-ice-900">{products.length}</span>{" "}
-              {products.length === 1 ? t("common.result") : t("common.results")}
+              <span className="font-medium text-ice-900 tabular-nums">{products.length}</span> {" "}
+              {products.length === 1 ? "result" : "results"}
             </p>
             <div className="flex items-center gap-2">
               <FilterTrigger />
@@ -107,12 +108,10 @@ export default async function CollectionPage({
             products={products}
             columns={3}
             priorityCount={3}
-            emptyTitle={scoped.length === 0 ? t("common.comingSoon") : undefined}
+            emptyTitle="Coming Soon"
             emptyHint={
-              scoped.length === 0
-                ? locale === "ar"
-                  ? "هذه المجموعة لم تُملأ بعد. أضف منتجات إليها من لوحة التحكم."
-                  : "This collection hasn't been filled yet. Add products to it from the admin dashboard."
+              products.length === 0
+                ? "This collection hasn't been filled yet. Add products to it from the admin dashboard."
                 : undefined
             }
           />
