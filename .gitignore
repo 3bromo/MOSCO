@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+build
+dist
+.DS_Store
+*.pem
+
+# env
+.env
+.env*.local
+
+# local file-backed database + uploaded media (local dev mode only)
+/data/*.json
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# ts
+*.tsbuildinfo
+next-env.d.ts
